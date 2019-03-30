@@ -48,26 +48,39 @@ def getResult(founded):
         cv2.putText(imgNotFound, "TARGET NOT FOUND", (5, 30), font, 1, (0, 0, 255), 2)
         return imgNotFound
 
-def drawQuads(img, minVals, targetshape):
+def drawQuads(img, minVals, targetshape, scale):
     for i in minVals:
-        cv2.rectangle(img, ((int(i[1]/1.0)) -1, int((i[0])/1) -1), (int(i[1]/1.0) + targetshape[1], int(i[0]/1.0) + targetshape[0]), (0,255,0))
+        cv2.rectangle(img, ((int(i[1]/scale)) -1, int((i[0])/scale) -1), (int(i[1]/scale) + targetshape[1], int(i[0]/scale) + targetshape[0]), (0,255,0))
 
+def scaleImages(img, target, scale):
+    if scale != 1.0:
+        img = cv2.resize(img,(0,0),fx=scale,fy=scale);
+        target = cv2.resize(target,(0,0),fx=scale,fy=scale);
+
+    return img, target
 
 if __name__ == '__main__':
 
     image = input("Input image: ")
-    template = input("Target image:")
-    threshold = float(input("Detection threshold:"))
+    template = input("Target image: ")
+    threshold = float(input("Detection threshold: "))
     img_color = cv2.imread(image, cv2.IMREAD_ANYCOLOR)
     img = cv2.imread(image,cv2.IMREAD_GRAYSCALE)
     target_color = cv2.imread(template,cv2.IMREAD_ANYCOLOR)
     target = cv2.imread(template,cv2.IMREAD_GRAYSCALE)
 
+    #scale = 0.0
+    #while scale == 0.0:
+    #    scale = float(input("Image Scale(must be > 0.0): "))
+
+    scale = 1.0
+    img, target = scaleImages(img, target, scale)
+
     isFounded, matching_img, minVals = matchingimage(img, target, threshold)
     resultimg = getResult(isFounded)
 
     if isFounded == True:
-        drawQuads(img_color, minVals, target_color.shape)
+        drawQuads(img_color, minVals, target_color.shape, scale)
 
 
     cv2.imshow("Input Image",img_color)
